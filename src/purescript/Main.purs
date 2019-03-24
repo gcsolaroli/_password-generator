@@ -1,35 +1,51 @@
 module Main where
 
+import Components.Random as Random
 import Control.Applicative (pure)
-import Control.Bind (bind)
-import Data.Unit (Unit)
+import Control.Bind (bind, discard)
+import Control.Semigroupoid ((<<<))
+import Data.Function (($))
+import Data.Show (show)
+import Data.Unit (Unit, unit)
 import Effect (Effect)
+import Effect.Aff.Compat (fromEffectFnAff)
+import Effect.Class (liftEffect)
 import Effect.Console (log)
-import Halogen.Aff.Util (runHalogenAff, awaitBody)
-import Halogen.Aff.Driver (runUI)
+--import Effect.Random as Random
+import Halogen as Halogen
+import Halogen.Aff (runHalogenAff, awaitBody)
+import Halogen.VDom.Driver (runUI)
+
+-- import Components.Random as Random
 
 main :: Effect Unit
 main = runHalogenAff do
---    let input = unit    --  eval "gcsolaroli"
-    --  The element we pass in should already be present in the DOM, and should be empty.
-    --  If either of these conditions are not met then strange things may occur - the behaviour is unspecified.
     body <- awaitBody
 
-    -- button <- runUI Button.button unit body
-    -- button.subscribe $ consumer \(Button.Toggled newState) -> do
-    --      log $ "Button was toggled to: " <> show newState
-    --      pure Nothing
-    -- button.query $ Halogen.action $ Button.Toggle
-    -- button.query $ Halogen.action $ Button.Toggle
-
-    -- randomComponent <- runUI Random.random unit body
+    -- newNumber <- Halogen.liftEffect (Random.randomInt 0 255)
+    -- newNumber <- (fromEffectFnAff <<< Random.randomInt) 0 255
+    -- log $ show newNumber
+    randomComponent <- runUI Random.component unit body
     -- randomComponent.query $ Halogen.action $ Random.Regenerate
-
-    -- ajaxComponent <- runUI GitHubAjax.ajax unit body
-    -- ajaxComponent.query $ Halogen.action $ GitHubAjax.SetUsername "gcsolaroli"
-    -- ajaxComponent.query $ Halogen.action $ GitHubAjax.MakeRequest
-
-    -- container           <- runUI Container.component unit body
-    -- displayContainer    <- runUI DisplayContainer.component unit body
-    -- multiComponents     <- runUI MultiSubComponentsContainer.component unit body
     pure ""
+
+
+{-
+    Handling Events
+
+    affEventSource
+    lifecycleComponent
+    https://stackoverflow.com/questions/44343300/halogen-keyboard-input-example-and-unsubsribing-to-the-events/44445047#44445047
+
+    eventSource' :: forall f m a.     MonadAff                      m => ((a -> Effect                   Unit) -> Effect                   (Effect                   Unit)) -> (a -> Maybe (f SubscribeStatus)) -> EventSource f m
+                                                                          |- callback                       -|                             |- Remove event listener     -|     |- MaybeQuery                 -|
+
+    eventSource' :: forall f m a eff. MonadAff (avar :: AVAR | eff) m => ((a -> Eff (avar :: AVAR | eff) Unit) -> Eff (avar :: AVAR | eff) (Eff (avar :: AVAR | eff) Unit)) -> (a -> Maybe (f SubscribeStatus)) -> EventSource f m
+
+    type Callback a = (a -> Eff (avar :: AVAR | eff) Unit)
+    type MaybeQuery a = (a -> Maybe (f SubscribeStatus))
+    type RemoveEventListener = (Eff (avar :: AVAR | eff) Unit)
+
+    eventSource' :: forall f m a eff. (Callback a -> Eff (avar :: AVAR | eff) RemoveEventListener) -> MaybeQuery a -> EventSource f m
+-}
+

@@ -108,18 +108,20 @@ let additions =
 -------------------------------
 -}
 
-let mkPackage =
-      https://raw.githubusercontent.com/purescript/package-sets/psc-0.12.3-20190315/src/mkPackage.dhall sha256:0b197efa1d397ace6eb46b243ff2d73a3da5638d8d0ac8473e8e4a8fc528cf57
+let mkPackage = https://raw.githubusercontent.com/purescript/package-sets/psc-0.12.3-20190323-2/src/mkPackage.dhall sha256:0b197efa1d397ace6eb46b243ff2d73a3da5638d8d0ac8473e8e4a8fc528cf57
 
-let upstream =
-      https://raw.githubusercontent.com/purescript/package-sets/psc-0.12.3-20190315/src/packages.dhall sha256:08714bc666b16834f0f4cf86d408745ce005c43e3343821e4c3864ef28709177
+let upstream = https://raw.githubusercontent.com/purescript/package-sets/psc-0.12.3-20190323-2/src/packages.dhall sha256:75491c6ef6587959ebf80bb1ac4d706dfac83d8100230cf85dc4efe6cf918460
 
-let overrides = {=}
+let overrides = {
+    halogen             = upstream.halogen              // { version = "v5.0.0-rc.4" },
+    halogen-vdom        = upstream.halogen-vdom         // { version = "v6.1.0" },
+    svg-parser-halogen  = upstream.svg-parser-halogen   // { version = "halogen-5" }
+}
 
 let additions = {
-  sequences = mkPackage [ "newtype", "profunctor", "arrays", "maybe", "unfoldable", "lazy", "prelude", "unsafe-coerce", "tuples", "partial"]
-                        "https://github.com/hdgarrood/purescript-sequences"
-                        "v2.1.0"
+    sequences = mkPackage   [ "newtype", "profunctor", "arrays", "maybe", "unfoldable", "lazy", "prelude", "unsafe-coerce", "tuples", "partial" ]
+                            "https://github.com/hdgarrood/purescript-sequences"
+                            "v2.1.0"
 }
 
 in  upstream // overrides // additions
