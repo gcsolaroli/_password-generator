@@ -9,7 +9,7 @@ import Data.Semigroup ((<>))
 import Data.Show (show)
 import Data.Unit (Unit)
 --import Data.Void (Void)
---import Effect.Aff (Aff)
+import Effect.Aff.Class (class MonadAff)
 import Effect.Random as Random
 import Halogen as Halogen
 import Halogen.HTML as HTML
@@ -31,7 +31,7 @@ data Action = Regenerate
 
 -- random :: Halogen.Component HTML.HTML Query Unit Void Aff
 -- random = Halogen.component {
-component :: forall q i o m. Halogen.Component HTML.HTML q i o m
+component :: forall q i o m. MonadAff m => Halogen.Component HTML.HTML q i o m
 component = Halogen.mkComponent {
         initialState,
         render,
@@ -65,7 +65,7 @@ component = Halogen.mkComponent {
     --         Halogen.put (Just newNumber)
     --         pure next
 
-    handleAction ∷ forall o m. Action → Halogen.HalogenM State Action () o m Unit
+    handleAction ∷ forall o m. MonadAff m => Action → Halogen.HalogenM State Action () o m Unit
     handleAction = case _ of
         Regenerate -> do
             newNumber <- Halogen.liftEffect (Random.randomInt 0 255)

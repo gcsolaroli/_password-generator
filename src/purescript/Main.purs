@@ -26,7 +26,7 @@ main = runHalogenAff do
     -- newNumber <- (fromEffectFnAff <<< Random.randomInt) 0 255
     -- log $ show newNumber
     randomComponent <- runUI Random.component unit body
-    -- randomComponent.query $ Halogen.action $ Random.Regenerate
+    --randomComponent.query $ Halogen.action $ Random.Regenerate
     pure ""
 
 
