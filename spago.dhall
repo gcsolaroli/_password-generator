@@ -1,7 +1,7 @@
 { name =
     "password-generator"
 , dependencies =
-    [ "console", "effect", "halogen", "random", "sequences" ]
+    [ "console", "effect", "halogen", "pipes", "random", "sequences" ]
 , packages =
     ./packages.dhall
 }
