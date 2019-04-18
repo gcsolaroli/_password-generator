@@ -108,9 +108,8 @@ let additions =
 -------------------------------
 -}
 
-let mkPackage = https://raw.githubusercontent.com/purescript/package-sets/psc-0.12.3-20190323-2/src/mkPackage.dhall sha256:0b197efa1d397ace6eb46b243ff2d73a3da5638d8d0ac8473e8e4a8fc528cf57
-
-let upstream = https://raw.githubusercontent.com/purescript/package-sets/psc-0.12.3-20190323-2/src/packages.dhall sha256:75491c6ef6587959ebf80bb1ac4d706dfac83d8100230cf85dc4efe6cf918460
+let mkPackage = https://raw.githubusercontent.com/purescript/package-sets/psc-0.12.4-20190413/src/mkPackage.dhall sha256:0b197efa1d397ace6eb46b243ff2d73a3da5638d8d0ac8473e8e4a8fc528cf57
+let upstream =  https://raw.githubusercontent.com/purescript/package-sets/psc-0.12.4-20190413/src/packages.dhall  sha256:a63cc6dbd2190cc4d4f898e4db59281e4bbd09a022de6036e379bc991e23e705
 
 let overrides = {
     halogen             = upstream.halogen              // { version = "v5.0.0-rc.4" },
