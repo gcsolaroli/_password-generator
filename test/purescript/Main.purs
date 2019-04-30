@@ -1,7 +1,8 @@
 module Test.Main where
 
 --import Prelude
-
+import Control.Bind (discard)
+import Data.Unit (Unit)
 import Effect (Effect)
 import Effect.Console (log)
 

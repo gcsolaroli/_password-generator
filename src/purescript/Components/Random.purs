@@ -1,22 +1,20 @@
 module Components.Random where
 
---import Control.Applicative (pure)
 import Control.Bind (bind)
 import Data.Function (($))
 import Data.Maybe (Maybe(..), maybe)
---import Data.NaturalTransformation (type (~>))
 import Data.Semigroup ((<>))
 import Data.Show (show)
 import Data.Unit (Unit)
---import Data.Void (Void)
 import Effect.Aff.Class (class MonadAff)
-import Effect.Random as Random
 import Halogen as Halogen
 import Halogen.HTML as HTML
 import Halogen.HTML.Events as Events
+import Node.Buffer (Buffer)
+import PRNG as PRNG
 
 
-type State = Maybe Int
+type State = Maybe Buffer
 data Action = Regenerate
 --data Query a = Regenerate a
 
@@ -68,5 +66,6 @@ component = Halogen.mkComponent {
     handleAction ∷ forall o m. MonadAff m => Action → Halogen.HalogenM State Action () o m Unit
     handleAction = case _ of
         Regenerate -> do
-            newNumber <- Halogen.liftEffect (Random.randomInt 0 255)
+            -- newNumber <- Halogen.liftEffect (Random.randomInt 0 255)
+            newNumber <- Halogen.liftEffect (PRNG.randomBytes 8)
             Halogen.modify_ \st -> (Just newNumber)
