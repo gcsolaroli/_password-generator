@@ -15,4 +15,4 @@ In order to run the full project you need a few extra tools:
   - [`devd`](https://github.com/cortesi/devd)
   - [`sass`](https://sass-lang.com/install)
 
-With these tools installed, you can just run the `modd` command from inside the project folder, and the application will be available at this [url](http://devd.io:8000/)
+With these tools installed, you can just run the `modd` command from inside the project folder, and the application will be available at this local (127.0.0.1) url [`http://devd.io:8000`](http://devd.io:8000/)
