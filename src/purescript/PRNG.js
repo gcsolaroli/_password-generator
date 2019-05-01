@@ -1,9 +1,7 @@
 "use strict"
 
-const crypto = require("crypto")
-
-exports.nativeGenerateRandomNumber = function(n) {
+exports.nativeGenerateRandomNumber = function (n) {
     return function () {
-        return crypto.randomBytes(n)
+        return Buffer.from(crypto.getRandomValues(new Uint8Array(n)));
     }
 }
