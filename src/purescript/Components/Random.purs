@@ -1,20 +1,20 @@
 module Components.Random where
 
 import Control.Bind (bind)
+import Control.Category (identity)
 import Data.Function (($))
 import Data.Maybe (Maybe(..), maybe)
 import Data.Semigroup ((<>))
-import Data.Show (show)
 import Data.Unit (Unit)
 import Effect.Aff.Class (class MonadAff)
 import Halogen as Halogen
 import Halogen.HTML as HTML
 import Halogen.HTML.Events as Events
-import Node.Buffer (Buffer)
+import Node.Buffer (toString)
+import Node.Encoding (Encoding(..))
 import PRNG as PRNG
 
-
-type State = Maybe Buffer
+type State = Maybe String
 data Action = Regenerate
 
 component :: forall q i o m. MonadAff m => Halogen.Component HTML.HTML q i o m
@@ -32,7 +32,9 @@ component = Halogen.mkComponent {
     render :: forall m. State -> Halogen.ComponentHTML Action () m
     render state =
         let
-            value = maybe "No number generated yet" show state
+            -- value = maybe "No number generated yet" show state
+            -- value = maybe "No number generated yet" (\x -> x) state
+            value = maybe "No number generated yet" identity state
         in
             HTML.div [] [
                 HTML.h1 [] [HTML.text "Random number"],
@@ -44,4 +46,5 @@ component = Halogen.mkComponent {
     handleAction = case _ of
         Regenerate -> do
             newNumber <- Halogen.liftEffect (PRNG.randomBytes 8)
-            Halogen.modify_ \st -> (Just newNumber)
+            value     <- Halogen.liftEffect (toString Hex newNumber)
+            Halogen.modify_ \_ -> (Just value)
