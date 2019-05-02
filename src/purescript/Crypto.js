@@ -8,8 +8,20 @@
 
 */
 
+const bufferFromArrayBuffer = function (ab) {
+    return Buffer.from(ab);
+};
+  
+const bufferToArrayBuffer = function (buff) {
+    return buff.buffer.slice(buff.byteOffset, buff.byteOffset + buff.byteLength);
+};
+  
+const getRandomValues = function (n) {
+    return Buffer.from(crypto.getRandomValues(new Uint8Array(n)));
+}
+
 exports._getRandomValues = function (n) {
     return function () {
-        return Buffer.from(crypto.getRandomValues(new Uint8Array(n)));
+        return getRandomValues(n);
     }
 }
