@@ -1,24 +1,24 @@
 # Password generator
 
-Compiling the [`purescript`](http://www.purescript.org) code, supposing [`nvm`](http://nvm.sh) is already available, is as simple as typing:
+Compiling the [`purescript`](http://www.purescript.org) code, supposing [`nvm`](http://nvm.sh) and `make` are already available, is as simple as typing:
 
     > nvm install --lts
     > npm install -g purescript
     > npm install -g spago
     > npm install -g parcel-bundler
-    > spago install --jobs 10
-    > spago bundle --to target/js/index.js
+    > npm install -g sass
+    > make build
 
 
-In order to run the full project you need a few extra tools:
+To run the application, just type:
 
-  - [`modd`](https://github.com/cortesi/modd)
-  - [`sass`](https://sass-lang.com/install)
+    > make run
 
-With these tools installed, you can just run the `modd` command from inside the project folder, and the application will be available at running on a local port, reported by [`ParcelJS`]() logs:
+THis will start a web server serving the application on a local port, reported by [`ParcelJS`]() logs:
 
     >> starting...
     Server running at http://localhost:1234 
     ✨  Built in 2.36s.
 
 
+If you want to have your application updated automatically when you edit your files (purs, js, html, scss), you can run (in a separate shell) the [`modd`](https://github.com/cortesi/modd) command
