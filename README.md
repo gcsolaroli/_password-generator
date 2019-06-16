@@ -7,6 +7,7 @@ Compiling the [`purescript`](http://www.purescript.org) code, supposing [`nvm`](
     > npm install -g spago
     > npm install -g parcel-bundler
     > npm install -g sass
+    > npm install -g yarn
     > make build
 
 
