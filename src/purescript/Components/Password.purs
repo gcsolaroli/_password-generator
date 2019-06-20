@@ -5,13 +5,15 @@ import Control.Bind (bind)
 import Control.Category (identity)
 import Data.Function (($), const)
 import Data.Maybe (Maybe(..))
-import Data.Void (Void)
+import Data.Void (Void, void)
 import Data.Unit (Unit)
 import Halogen as Halogen
 import Halogen.HTML as HTML
 import State.PasswordSettings (Password)
 
-type Slot = Halogen.Slot () Void
+type Slot = Halogen.Slot Query Message
+data Query = Void
+data Message = Void
 type State = Password
 data Action = Regenerate
 
@@ -22,7 +24,6 @@ component = Halogen.mkComponent {
     eval: Halogen.mkEval $ Halogen.defaultEval { handleAction = handleAction },
     receiver: const Nothing
 }
-
 
 initialState :: Password -> State
 initialState = identity

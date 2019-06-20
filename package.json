@@ -11,5 +11,8 @@
   },
   "engines": {
     "yarn": "^1.13.0"
+  },
+  "devDependencies": {
+    "sass": "^1.21.0"
   }
 }
