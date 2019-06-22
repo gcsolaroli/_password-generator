@@ -5,9 +5,9 @@
   },
   "scripts": {
     "build": "spago build --jobs 10 -- --codegen js,sourcemaps --verbose-errors",
-    "develop-purs": "spago build --watch --jobs 10 -- --codegen js,sourcemaps --verbose-errors",
+    "develop-purs": "spago build --watch --clear-screen --jobs 10 -- --codegen js,sourcemaps --verbose-errors",
     "develop-app": "parcel --out-dir ./output/.dist ./src/html/index.html",
-    "clean": "rm -rf output .spago .cache .psc-ide-port .sass-cache node_modules yarn-error.log"
+    "clean": "rm -rf output .spago .cache .psc-ide-port .sass-cache .psci_modules node_modules yarn-error.log"
   },
   "engines": {
     "yarn": "^1.13.0"

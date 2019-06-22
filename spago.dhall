@@ -6,10 +6,11 @@
     [ "console"
     , "effect"
     , "halogen"
+    , "node-buffer"
     , "pipes"
+    , "psci-support"
     , "random"
     , "sequences"
-    , "node-buffer"
     ]
 , packages =
     ./packages.dhall

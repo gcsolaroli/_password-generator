@@ -1,4 +1,4 @@
-module State.PasswordSettings where
+module State.PasswordSettings (PasswordSettings, Password(..), PasswordLength, PasswordStrength(..), PasswordCharset(..)) where
 
 import Data.Either (Either)
 import Data.Eq (class Eq)

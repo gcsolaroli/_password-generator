@@ -1,7 +1,8 @@
 module Components.Main where
 
-import Control.Bind (bind)
+import Control.Bind (bind, discard)
 import Control.Category (identity)
+import Control.Semigroupoid ((<<<))
 import Crypto as Crypto
 import Data.Either (Either(..))
 import Data.Eq (class Eq)
@@ -14,6 +15,7 @@ import Data.Symbol (SProxy(..))
 import Data.Unit (Unit, unit)
 import Data.Void (absurd)
 import Effect.Aff.Class (class MonadAff)
+import Effect.Class.Console (log)
 import Halogen as Halogen
 import Halogen.HTML as HTML
 import Halogen.HTML.Events as Events
@@ -31,6 +33,7 @@ type State = {
     password :: Maybe Password
 }
 data Action = Regenerate
+            | HandleChangedPassword Password
 
 arrayToSet :: forall a. Eq a => Array a -> Set a
 arrayToSet = unsafeCoerce
@@ -74,17 +77,19 @@ render state =
         HTML.div [] [
             HTML.h1 [] [HTML.text "Random number"],
             HTML.div [] [
-                -- HTML.slot passwordSettingsSlot unit PasswordSettingsComponent.component state.passwordSettings absurd
-                HTML.slot passwordSlot unit PasswordComponent.component (maybe (Password "") identity state.password) absurd
+                HTML.slot passwordSlot unit PasswordComponent.component (maybe (Password "") identity state.password) (Just <<< HandleChangedPassword)
             ],
             HTML.p  [] [HTML.text ("Current value: " <> value)],
             HTML.button [ Events.onClick \_ -> Just Regenerate] [ HTML.text "Generate new random value" ]
         ]
 
-handleAction ∷ forall o m. MonadAff m => Action → Halogen.HalogenM State Action () o m Unit
+handleAction ∷ forall o m. MonadAff m => Action → Halogen.HalogenM State Action ChildSlots o m Unit
 handleAction = case _ of
     Regenerate -> do
         newNumber <- Halogen.liftEffect (Crypto.randomBytes 8)
         value     <- Halogen.liftEffect (toString Hex newNumber)
         --Halogen.modify_ \s -> ({passwordSettings, s.passwordSettings, password: Just value})
         Halogen.modify_ (updatePassword (Password value))
+    HandleChangedPassword (Password password) -> do
+        log("Updated password")
+        Halogen.modify_ (updatePassword (Password password))
