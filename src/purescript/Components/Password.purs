@@ -1,4 +1,4 @@
-module Components.Password where
+module Components.Password (Slot, Query(..), Message(..), component) where
 
 import Control.Applicative (pure)
 import Control.Bind (bind)

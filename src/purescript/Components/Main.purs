@@ -1,5 +1,7 @@
 module Components.Main where
 
+import Components.Password as PasswordComponent
+import Components.PasswordSettings as PasswordSettingsComponent
 import Control.Bind (bind, discard)
 import Control.Category (identity)
 import Control.Semigroupoid ((<<<))
@@ -21,19 +23,15 @@ import Halogen.HTML as HTML
 import Halogen.HTML.Events as Events
 import Node.Buffer (toString)
 import Node.Encoding (Encoding(..))
-
-import Unsafe.Coerce (unsafeCoerce)
-
 import State.PasswordSettings (Password(..), PasswordSettings, PasswordStrength(..), PasswordCharset(..))
-import Components.PasswordSettings  as PasswordSettingsComponent
-import Components.Password          as PasswordComponent
+import Unsafe.Coerce (unsafeCoerce)
 
 type State = {
     passwordSettings ::PasswordSettings,
     password :: Maybe Password
 }
 data Action = Regenerate
-            | HandleChangedPassword Password
+            | HandleChangedPassword PasswordComponent.Message
 
 arrayToSet :: forall a. Eq a => Array a -> Set a
 arrayToSet = unsafeCoerce
@@ -48,8 +46,8 @@ type ChildSlots = (
     passsword           :: PasswordComponent.Slot           Unit
 )
 
-passwordSettingsSlot    = SProxy :: SProxy "passwordSettings"
-passwordSlot            = SProxy :: SProxy "password"
+_passwordSettingsSlot    = SProxy :: SProxy "passwordSettings"
+_passwordSlot            = SProxy :: SProxy "password"
 
 -- =================================================
 
@@ -77,7 +75,11 @@ render state =
         HTML.div [] [
             HTML.h1 [] [HTML.text "Random number"],
             HTML.div [] [
-                HTML.slot passwordSlot unit PasswordComponent.component (maybe (Password "") identity state.password) (Just <<< HandleChangedPassword)
+                HTML.slot   _passwordSlot                                   --  slot address label
+                            unit                                            --  slot address index
+                            PasswordComponent.component                     --  component
+                            (maybe (Password "") identity state.password)   --  input value
+                            (Just <<< HandleChangedPassword)                --  function mapping outputs (messages) from the component to query in the paret
             ],
             HTML.p  [] [HTML.text ("Current value: " <> value)],
             HTML.button [ Events.onClick \_ -> Just Regenerate] [ HTML.text "Generate new random value" ]
@@ -90,6 +92,6 @@ handleAction = case _ of
         value     <- Halogen.liftEffect (toString Hex newNumber)
         --Halogen.modify_ \s -> ({passwordSettings, s.passwordSettings, password: Just value})
         Halogen.modify_ (updatePassword (Password value))
-    HandleChangedPassword (Password password) -> do
+    HandleChangedPassword (PasswordComponent.Regenerated (Password password)) -> do
         log("Updated password")
         Halogen.modify_ (updatePassword (Password password))
