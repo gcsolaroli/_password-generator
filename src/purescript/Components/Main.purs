@@ -2,7 +2,7 @@ module Components.Main where
 
 import Prelude
 
-import Components.Password as PasswordComponent
+-- import Components.Password as PasswordComponent
 import Components.Settings as SettingComponent
 -- import Control.Applicative (pure)
 -- import Data.Eq (class Eq)
@@ -30,8 +30,8 @@ type    Settings    = SettingComponent.Settings
 type    Surface     = HTML.HTML
 
 data    Action      = NoAction
-                    | SettingComponent_NoAction  SettingComponent.Action
-                    | PasswordComponent_NoAction PasswordComponent.Action
+                    -- | SettingComponent_NoAction  SettingComponent.Action
+                    -- | PasswordComponent_NoAction PasswordComponent.Action
 data    Query a     = NoQuery a
 type    Input       = Settings
 data    Output      = NoOutput      -- aka Message
@@ -61,20 +61,21 @@ initialState s = { settings: s, password: "" }
 -- component :: forall m. {- MonadAff m => -} Halogen.Component Surface Query Input Output m
 component :: forall m. MonadAff m => Halogen.Component Surface Query Input Output m
 component = Halogen.mkComponent {
-    initialState,   -- :: Input -> State
-    render,         -- :: State -> Surface (ComponentSlot Surface Slots m Action) Action
-    eval: Halogen.mkEval $ Halogen.defaultEval {
-        handleAction = handleAction,    --  handleAction    :: forall m. MonadAff m => Action → Halogen.HalogenM State Action Slots Output m Unit
-        handleQuery  = handleQuery,     --  handleQuery     :: forall m a. Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a)
-        receive      = receive,         --  receive         :: Input -> Maybe Action
-        initialize   = initialize,      --  initialize      :: Maybe Action
-        finalize     = finalize         --  finalize        :: Maybe Action
+    initialState ,                                      -- :: Input -> State
+    render,                                             -- :: State -> Surface (ComponentSlot Surface Slots m Action) Action
+    eval: Halogen.mkEval $ Halogen.defaultEval {        -- :: HalogenQ query action input ~> HalogenM state action slots output m
+        initialize   = initialize   :: Maybe Action,
+        receive      = receive      :: Input -> Maybe Action,
+        handleAction = handleAction :: forall m.   MonadAff m => Action  → Halogen.HalogenM State Action Slots Output m Unit,
+        handleQuery  = handleQuery  :: forall m a. MonadAff m => Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a),
+        finalize     = finalize     :: Maybe Action
     }
                     -- :: HalogenQ Query Action Input ~> HalogenM State Action Slots Output m
 }
 
 -- render :: forall m. {- MonadAff m => -} State -> Halogen.ComponentHTML Action Slots m
 render :: forall m. MonadAff m => State -> Halogen.ComponentHTML Action Slots m
+--render :: State -> Surface (ComponentSlot Surface Slots m Action) Action
 render ({settings: settings, password: password}) = HTML.div [] [
     HTML.h1  [] [HTML.text "Hello!"],
     -- HTML.div [] [HTML.slot _settings (SlotIdentifier 1) SettingComponent.component (settings) (Just <<< SettingComponent_NoAction)],
@@ -87,11 +88,6 @@ handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Actio
 handleAction = case _ of
     NoAction ->
         pure unit
-    SettingComponent_NoAction (SettingComponent.NoAction) ->
-        pure unit
-    PasswordComponent_NoAction (PasswordComponent.NoAction) ->
-        pure unit
-    
     -- SubComponentOutput (SubComponent.S_NoOutput) ->
     --     pure unit
     -- SubComponentOutput (SubComponent.S_Click_Happened) ->
@@ -107,7 +103,7 @@ receive :: Input -> Maybe Action
 receive = const Nothing
 
 initialize :: Maybe Action
-initialize = Just NoAction
+initialize = Nothing -- Just NoAction
 
 finalize :: Maybe Action
 finalize = Nothing
