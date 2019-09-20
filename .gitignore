@@ -9,3 +9,5 @@
 /.psa*
 /.spago
 /target
+/.cache
+/package-lock.json
