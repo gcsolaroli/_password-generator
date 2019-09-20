@@ -67,7 +67,7 @@ initialState _ = {
     password: Nothing
 }
 
-render :: forall m. State -> Halogen.ComponentHTML Action () m
+render :: forall m. State -> Halogen.ComponentHTML Action ChildSlots m
 render state =
     let
         value = maybe "No number generated yet" show state.password
