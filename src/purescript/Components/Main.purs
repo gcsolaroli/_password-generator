@@ -2,7 +2,7 @@ module Components.Main where
 
 import Prelude
 
--- import Components.Password as PasswordComponent
+--import Components.Password as Components.Password
 import Components.Settings as Components.Settings
 -- import Control.Applicative (pure)
 -- import Data.Eq (class Eq)
@@ -25,7 +25,6 @@ import Halogen.HTML as HTML
 - `m` is the effect monad used during evaluation                                             :: Type -> Type
 -}
 
---type    Settings    = SettingComponent.Settings
 type    Settings    = Components.Settings.Settings
 
 type    Surface     = HTML.HTML
@@ -37,8 +36,8 @@ data    Query a     = NoQuery a
 type    Input       = Settings
 data    Output      = NoOutput      -- aka Message
 type    State       = {
-    settings:: Settings,
-    password:: String
+    settings :: Settings,
+    password :: String
 }
 
 newtype SlotIdentifier = SlotIdentifier Int
