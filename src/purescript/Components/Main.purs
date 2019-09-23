@@ -1,16 +1,16 @@
 module Components.Main where
 
-import Prelude
-
---import Components.Password as Components.Password
+import Components.Password as Components.Password
 import Components.Settings as Components.Settings
--- import Control.Applicative (pure)
--- import Data.Eq (class Eq)
--- import Data.Function (($), const)
+import Control.Applicative (pure)
+import Control.Semigroupoid ((<<<)) --  (<<<) = Control.Semigroupoid.compose
+import Data.Eq (class Eq)
+import Data.Function (($), const)   --  ($)   = Data.Function.apply
 import Data.Maybe (Maybe(..))
--- import Data.Ord (class Ord)
+import Data.Ord (class Ord)
+import Data.Show (show)
 import Data.Symbol (SProxy(..))
--- import Data.Unit (Unit, unit)
+import Data.Unit (Unit, unit)
 import Effect.Aff.Class (class MonadAff)
 import Halogen as Halogen
 import Halogen.HTML as HTML
@@ -31,7 +31,7 @@ type    Surface     = HTML.HTML
 
 data    Action      = NoAction
                     -- | SettingComponent_NoAction  SettingComponent.Action
-                    -- | PasswordComponent_NoAction PasswordComponent.Action
+                    -- | PasswordComponent_NoAction Components.Password.Action
 data    Query a     = NoQuery a
 type    Input       = Settings
 data    Output      = NoOutput      -- aka Message
@@ -80,7 +80,7 @@ render :: forall m. MonadAff m => State -> Halogen.ComponentHTML Action Slots m
 render ({settings: { length : length }, password: password}) = HTML.div [] [
     HTML.h1  [] [HTML.text "Hello!"],
     -- HTML.div [] [HTML.slot _settings (SlotIdentifier 1) SettingComponent.component (settings) (Just <<< SettingComponent_NoAction)],
-    -- HTML.div [] [HTML.slot _password (SlotIdentifier 2) PasswordComponent.component (password) (Just <<< PasswordComponent_NoAction)],
+    -- HTML.div [] [HTML.slot _password (SlotIdentifier 2) Components.Password.component (password) (Just <<< PasswordComponent_NoAction)],
     HTML.div [] [HTML.span [] [HTML.text "length:"],   HTML.span [] [HTML.text (show length)]],
     HTML.div [] [HTML.span [] [HTML.text "password:"], HTML.span [] [HTML.text password]],
     HTML.hr_
