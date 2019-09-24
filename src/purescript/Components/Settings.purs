@@ -20,9 +20,10 @@ type    Surface    = HTML.HTML
 data    Action     = NoAction
 data    Query a    = GetSettings (Settings -> a)
 type    Input      = Settings
---data    Output     = UpdatedSettings Settings
-type    Output     = Settings
+data    Output     = UpdatedSettings Settings
+--type    Output     = Settings
 type    State      = Settings
+type    Slot = Halogen.Slot Query Output
 type    Slots = ()
 
 type    Settings = { length :: Int }

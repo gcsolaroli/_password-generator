@@ -22,6 +22,7 @@ data    Query a    = GetSettings a
 type    Input      = String
 data    Output     = UpdatedPassword String
 type    State      = String
+type    Slot = Halogen.Slot Query Output
 type    Slots = ()
 
 initialState :: Input -> State

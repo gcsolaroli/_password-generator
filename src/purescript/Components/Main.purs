@@ -3,6 +3,7 @@ module Components.Main where
 import Components.Password as Components.Password
 import Components.Settings as Components.Settings
 import Control.Applicative (pure)
+import Control.Category (identity)
 import Control.Semigroupoid ((<<<)) --  (<<<) = Control.Semigroupoid.compose
 import Data.Eq (class Eq)
 import Data.Function (($), const)   --  ($)   = Data.Function.apply
@@ -29,9 +30,8 @@ type    Settings    = Components.Settings.Settings
 
 type    Surface     = HTML.HTML
 
-data    Action      = NoAction
-                    -- | SettingComponent_NoAction  SettingComponent.Action
-                    -- | PasswordComponent_NoAction Components.Password.Action
+data    Action      = UpdateSettings    Components.Settings.Output
+                    | UpdatePassword    Components.Password.Output
 data    Query a     = NoQuery a
 type    Input       = Settings
 data    Output      = NoOutput      -- aka Message
@@ -39,14 +39,15 @@ type    State       = {
     settings :: Settings,
     password :: String
 }
+type    Slot = Halogen.Slot Query Output
 
-newtype SlotIdentifier = SlotIdentifier Int
-derive instance eqSlotIdentifier  :: Eq  SlotIdentifier
-derive instance ordSlotIdentifier :: Ord SlotIdentifier
+-- newtype SlotIdentifier = SlotIdentifier Int
+-- derive instance eqSlotIdentifier  :: Eq  SlotIdentifier
+-- derive instance ordSlotIdentifier :: Ord SlotIdentifier
 
 type Slots = (
-    settings :: SlotIdentifier,
-    password :: SlotIdentifier 
+    settings :: Components.Settings.Slot Unit,
+    password :: Components.Password.Slot Unit
 )
 
 _settings :: SProxy "settings"
@@ -79,8 +80,8 @@ render :: forall m. MonadAff m => State -> Halogen.ComponentHTML Action Slots m
 --render ({settings: settings, password: password}) = HTML.div [] [
 render ({settings: { length : length }, password: password}) = HTML.div [] [
     HTML.h1  [] [HTML.text "Hello!"],
-    -- HTML.div [] [HTML.slot _settings (SlotIdentifier 1) SettingComponent.component (settings) (Just <<< SettingComponent_NoAction)],
-    -- HTML.div [] [HTML.slot _password (SlotIdentifier 2) Components.Password.component (password) (Just <<< PasswordComponent_NoAction)],
+    HTML.div [] [HTML.slot _settings unit Components.Settings.component ({ length : length }) (Just <<< UpdateSettings)],
+    HTML.div [] [HTML.slot _password unit Components.Password.component (password) (Just <<< UpdatePassword)],
     HTML.div [] [HTML.span [] [HTML.text "length:"],   HTML.span [] [HTML.text (show length)]],
     HTML.div [] [HTML.span [] [HTML.text "password:"], HTML.span [] [HTML.text password]],
     HTML.hr_
@@ -89,8 +90,12 @@ render ({settings: { length : length }, password: password}) = HTML.div [] [
 -- handleAction ∷ forall m. {- MonadAff m => -} Action → Halogen.HalogenM State Action Slots Output m Unit
 handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Action Slots Output m Unit
 handleAction = case _ of
-    NoAction ->
-        pure unit
+    -- NoAction ->
+    --    pure unit
+    UpdateSettings (Components.Settings.UpdatedSettings s) ->
+        Halogen.modify_ (\s -> { settings: s })
+    UpdatePassword (Components.Password.UpdatedPassword p) ->
+        Halogen.modify_ (\p -> { password: p })
     -- SubComponentOutput (SubComponent.S_NoOutput) ->
     --     pure unit
     -- SubComponentOutput (SubComponent.S_Click_Happened) ->
