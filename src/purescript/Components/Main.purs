@@ -3,7 +3,7 @@ module Components.Main where
 import Components.Password as Components.Password
 import Components.Settings as Components.Settings
 import Control.Applicative (pure)
-import Control.Bind (bind)
+import Control.Bind (bind, discard)
 import Control.Category (identity)
 import Control.Semigroupoid ((<<<), (>>>))  --  (<<<) = Control.Semigroupoid.compose
                                             --  (>>>) = Control.Semigroupoid.composeFlipped
@@ -16,6 +16,7 @@ import Data.String.Utils (repeat)
 import Data.Symbol (SProxy(..))
 import Data.Unit (Unit, unit)
 import Effect.Aff.Class (class MonadAff)
+import Effect.Console (log)
 import Halogen as Halogen
 import Halogen.HTML as HTML
 
@@ -90,14 +91,13 @@ handleAction = case _ of
     --    pure unit
     UpdateSettings (Components.Settings.UpdatedSettings settings) ->
         Halogen.modify_ (\state -> state { settings = settings })
-    UpdatePassword (Components.Password.UpdatedPassword password) ->
-        pure unit
+--  UpdatePassword (Components.Password.UpdatedPassword password) ->
+--      pure unit
     UpdatePassword (Components.Password.RegeneratePassword) -> do
-        settings :: Settings <- Halogen.get
+        Halogen.liftEffect $ log "handleAction \"UpdatePassword\""
+        settings :: Settings <- Halogen.gets _.settings
 --      password :: String <- generatePassword settings
         Halogen.modify_ (\state -> state { password = "drowssap" })
-
---      Halogen.get >>> \settings ->
 
 handleQuery :: forall m a. Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a)
 handleQuery = const (pure Nothing)

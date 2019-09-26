@@ -1,6 +1,7 @@
 module Components.Password where
 
 import Control.Applicative (pure)
+import Control.Bind (discard)
 import Control.Category (identity)
 -- import Control.Semigroupoid ((<<<))
 -- import Data.Eq (class Eq)
@@ -13,17 +14,18 @@ import Data.Semigroup ((<>))
 -- import Data.Symbol (SProxy(..))
 import Data.Unit (Unit, unit)
 import Effect.Aff.Class (class MonadAff)
+import Effect.Console (log)
 import Halogen as Halogen
 import Halogen.HTML as HTML
 import Halogen.HTML.Events as HTML.Events
 import Halogen.HTML.Properties as HTML.Properties
 
-type    Surface    = HTML.HTML
-data    Action     = Click
-data    Query a    = GetSettings a
-type    Input      = String
-data    Output     = UpdatedPassword String
-                   | RegeneratePassword
+type    Surface     = HTML.HTML
+data    Action      = Click
+data    Query a     = GetSettings a
+type    Input       = String
+data    Output      = RegeneratePassword
+--                  | UpdatedPassword String
 type    State      = String
 type    Slot = Halogen.Slot Query Output
 type    Slots = ()
@@ -54,6 +56,7 @@ render (password) = HTML.div [HTML.Properties.class_ (Halogen.ClassName "passwor
 handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Action Slots Output m Unit
 handleAction = case _ of
     Click -> do
+        Halogen.liftEffect $ log "click \"new\""
         Halogen.raise RegeneratePassword
 
 handleQuery :: forall m a. Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a)
@@ -63,7 +66,8 @@ receive :: Input -> Maybe Action
 receive = const Nothing
 
 initialize :: Maybe Action
-initialize = Just Click
+initialize = Nothing    --  DO NOT generate a password when starting up
+--initialize = Just Click --  Automatically generate a password when loading the component
 
 finalize :: Maybe Action
 finalize = Nothing
