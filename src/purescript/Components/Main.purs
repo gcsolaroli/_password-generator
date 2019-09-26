@@ -3,13 +3,16 @@ module Components.Main where
 import Components.Password as Components.Password
 import Components.Settings as Components.Settings
 import Control.Applicative (pure)
+import Control.Bind (bind)
 import Control.Category (identity)
-import Control.Semigroupoid ((<<<)) --  (<<<) = Control.Semigroupoid.compose
+import Control.Semigroupoid ((<<<), (>>>))  --  (<<<) = Control.Semigroupoid.compose
+                                            --  (>>>) = Control.Semigroupoid.composeFlipped
 import Data.Eq (class Eq)
 import Data.Function (($), const)   --  ($)   = Data.Function.apply
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.Ord (class Ord)
 import Data.Show (show)
+import Data.String.Utils (repeat)
 import Data.Symbol (SProxy(..))
 import Data.Unit (Unit, unit)
 import Effect.Aff.Class (class MonadAff)
@@ -30,8 +33,8 @@ type    Settings    = Components.Settings.Settings
 
 type    Surface     = HTML.HTML
 
-data    Action      = UpdateSettings    Components.Settings.Output
-                    | UpdatePassword    Components.Password.Output
+data    Action      = UpdateSettings        Components.Settings.Output
+                    | UpdatePassword        Components.Password.Output
 data    Query a     = NoQuery a
 type    Input       = Settings
 data    Output      = NoOutput      -- aka Message
@@ -76,7 +79,7 @@ render ({settings: settings, password: password}) = HTML.div [] [
     HTML.div [] [HTML.slot _settings unit Components.Settings.component (settings) (Just <<< UpdateSettings)],
     HTML.div [] [HTML.slot _password unit Components.Password.component (password) (Just <<< UpdatePassword)],
     --HTML.div [] [HTML.span [] [HTML.text "length:"],   HTML.span [] [HTML.text (show length)]],
-    HTML.div [] [HTML.span [] [HTML.text "password:"], HTML.span [] [HTML.text password]],
+    --HTML.div [] [HTML.span [] [HTML.text "password:"], HTML.span [] [HTML.text password]],
     HTML.hr_
 ]
 
@@ -88,11 +91,13 @@ handleAction = case _ of
     UpdateSettings (Components.Settings.UpdatedSettings settings) ->
         Halogen.modify_ (\state -> state { settings = settings })
     UpdatePassword (Components.Password.UpdatedPassword password) ->
-        Halogen.modify_ (\state -> state { password = password })
-    -- SubComponentOutput (SubComponent.S_NoOutput) ->
-    --     pure unit
-    -- SubComponentOutput (SubComponent.S_Click_Happened) ->
-    --     Halogen.modify_ (\(State counter) -> State (counter + 1))
+        pure unit
+    UpdatePassword (Components.Password.RegeneratePassword) -> do
+        settings :: Settings <- Halogen.get
+--      password :: String <- generatePassword settings
+        Halogen.modify_ (\state -> state { password = "drowssap" })
+
+--      Halogen.get >>> \settings ->
 
 handleQuery :: forall m a. Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a)
 handleQuery = const (pure Nothing)
@@ -108,3 +113,9 @@ initialize = Nothing -- Just NoAction
 
 finalize :: Maybe Action
 finalize = Nothing
+
+
+-- ============================================================================
+
+generatePassword :: Settings -> String
+generatePassword { length: length } = "pppp" -- maybe "" identity (repeat length "*")

@@ -15,13 +15,15 @@ import Data.Unit (Unit, unit)
 import Effect.Aff.Class (class MonadAff)
 import Halogen as Halogen
 import Halogen.HTML as HTML
+import Halogen.HTML.Events as HTML.Events
 import Halogen.HTML.Properties as HTML.Properties
 
 type    Surface    = HTML.HTML
-data    Action     = NoAction
+data    Action     = Click
 data    Query a    = GetSettings a
 type    Input      = String
 data    Output     = UpdatedPassword String
+                   | RegeneratePassword
 type    State      = String
 type    Slot = Halogen.Slot Query Output
 type    Slots = ()
@@ -45,13 +47,14 @@ component = Halogen.mkComponent {
 
 render :: forall m. {-MonadAff m =>-} State -> Halogen.ComponentHTML Action Slots m
 render (password) = HTML.div [HTML.Properties.class_ (Halogen.ClassName "password")] [
-    HTML.h1  [] [HTML.text ("<password>: " <> password)]
+    HTML.h1  [] [HTML.text ("<password>: " <> password)],
+    HTML.button [HTML.Properties.title "new", HTML.Events.onClick \_ -> Just Click] [HTML.text "new"]
 ]
 
 handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Action Slots Output m Unit
 handleAction = case _ of
-    NoAction ->
-        pure unit
+    Click -> do
+        Halogen.raise RegeneratePassword
 
 handleQuery :: forall m a. Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a)
 handleQuery = const (pure Nothing)
@@ -60,7 +63,7 @@ receive :: Input -> Maybe Action
 receive = const Nothing
 
 initialize :: Maybe Action
-initialize = Just NoAction
+initialize = Just Click
 
 finalize :: Maybe Action
 finalize = Nothing
