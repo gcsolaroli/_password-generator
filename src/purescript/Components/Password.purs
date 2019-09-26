@@ -15,6 +15,7 @@ import Data.Unit (Unit, unit)
 import Effect.Aff.Class (class MonadAff)
 import Halogen as Halogen
 import Halogen.HTML as HTML
+import Halogen.HTML.Properties as HTML.Properties
 
 type    Surface    = HTML.HTML
 data    Action     = NoAction
@@ -43,7 +44,7 @@ component = Halogen.mkComponent {
 }
 
 render :: forall m. {-MonadAff m =>-} State -> Halogen.ComponentHTML Action Slots m
-render (password) = HTML.div [] [
+render (password) = HTML.div [HTML.Properties.class_ (Halogen.ClassName "password")] [
     HTML.h1  [] [HTML.text ("<password>: " <> password)]
 ]
 

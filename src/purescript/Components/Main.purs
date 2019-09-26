@@ -39,12 +39,8 @@ type    State       = {
     settings :: Settings,
     password :: String
 }
-type    Slot = Halogen.Slot Query Output
 
--- newtype SlotIdentifier = SlotIdentifier Int
--- derive instance eqSlotIdentifier  :: Eq  SlotIdentifier
--- derive instance ordSlotIdentifier :: Ord SlotIdentifier
-
+--type    Slot = Halogen.Slot Query Output
 type Slots = (
     settings :: Components.Settings.Slot Unit,
     password :: Components.Password.Slot Unit
@@ -74,15 +70,12 @@ component = Halogen.mkComponent {
                     -- :: HalogenQ Query Action Input ~> HalogenM State Action Slots Output m
 }
 
--- render :: forall m. {- MonadAff m => -} State -> Halogen.ComponentHTML Action Slots m
 render :: forall m. MonadAff m => State -> Halogen.ComponentHTML Action Slots m
---render :: State -> Surface (ComponentSlot Surface Slots m Action) Action
---render ({settings: settings, password: password}) = HTML.div [] [
-render ({settings: { length : length }, password: password}) = HTML.div [] [
+render ({settings: settings, password: password}) = HTML.div [] [
     HTML.h1  [] [HTML.text "Hello!"],
-    HTML.div [] [HTML.slot _settings unit Components.Settings.component ({ length : length }) (Just <<< UpdateSettings)],
+    HTML.div [] [HTML.slot _settings unit Components.Settings.component (settings) (Just <<< UpdateSettings)],
     HTML.div [] [HTML.slot _password unit Components.Password.component (password) (Just <<< UpdatePassword)],
-    HTML.div [] [HTML.span [] [HTML.text "length:"],   HTML.span [] [HTML.text (show length)]],
+    --HTML.div [] [HTML.span [] [HTML.text "length:"],   HTML.span [] [HTML.text (show length)]],
     HTML.div [] [HTML.span [] [HTML.text "password:"], HTML.span [] [HTML.text password]],
     HTML.hr_
 ]
@@ -92,10 +85,10 @@ handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Actio
 handleAction = case _ of
     -- NoAction ->
     --    pure unit
-    UpdateSettings (Components.Settings.UpdatedSettings s) ->
-        Halogen.modify_ (\s -> { settings: s })
-    UpdatePassword (Components.Password.UpdatedPassword p) ->
-        Halogen.modify_ (\p -> { password: p })
+    UpdateSettings (Components.Settings.UpdatedSettings settings) ->
+        Halogen.modify_ (\state -> state { settings = settings })
+    UpdatePassword (Components.Password.UpdatedPassword password) ->
+        Halogen.modify_ (\state -> state { password = password })
     -- SubComponentOutput (SubComponent.S_NoOutput) ->
     --     pure unit
     -- SubComponentOutput (SubComponent.S_Click_Happened) ->
