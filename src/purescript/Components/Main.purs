@@ -3,19 +3,22 @@ module Components.Main where
 import Components.Password as Components.Password
 import Components.Settings as Components.Settings
 import Control.Applicative (pure)
-import Control.Bind (bind, discard)
+import Control.Bind (bind, discard, class Bind)
 import Control.Category (identity)
+import Control.Monad.State.Class (class MonadState)
 import Control.Semigroupoid ((<<<), (>>>))  --  (<<<) = Control.Semigroupoid.compose
                                             --  (>>>) = Control.Semigroupoid.composeFlipped
 import Data.Eq (class Eq)
 import Data.Function (($), const)   --  ($)   = Data.Function.apply
 import Data.Maybe (Maybe(..), maybe)
 import Data.Ord (class Ord)
+import Data.Semigroup ((<>))
 import Data.Show (show)
 import Data.String.Utils (repeat)
 import Data.Symbol (SProxy(..))
 import Data.Unit (Unit, unit)
 import Effect.Aff.Class (class MonadAff)
+import Effect.Class (class MonadEffect)
 import Effect.Console (log)
 import Halogen as Halogen
 import Halogen.HTML as HTML
@@ -36,6 +39,7 @@ type    Surface     = HTML.HTML
 
 data    Action      = UpdateSettings        Components.Settings.Output
                     | UpdatePassword        Components.Password.Output
+                    | GeneratePassword
 data    Query a     = NoQuery a
 type    Input       = Settings
 data    Output      = NoOutput      -- aka Message
@@ -57,7 +61,7 @@ _password :: SProxy "password"
 _password = SProxy
 
 initialState :: Input -> State
-initialState s = { settings: s, password: "" }
+initialState s = { settings: s, password: "aaa" }
 
 -- component :: forall m. {- MonadAff m => -} Halogen.Component Surface Query Input Output m
 component :: forall m. MonadAff m => Halogen.Component Surface Query Input Output m
@@ -65,13 +69,12 @@ component = Halogen.mkComponent {
     initialState ,                                      -- :: Input -> State
     render,                                             -- :: State -> Surface (ComponentSlot Surface Slots m Action) Action
     eval: Halogen.mkEval $ Halogen.defaultEval {        -- :: HalogenQ query action input ~> HalogenM state action slots output m
-        initialize   = initialize   :: Maybe Action,
-        receive      = receive      :: Input -> Maybe Action,
         handleAction = handleAction :: forall m.   MonadAff m => Action  → Halogen.HalogenM State Action Slots Output m Unit,
         handleQuery  = handleQuery  :: forall m a. MonadAff m => Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a),
+        initialize   = initialize   :: Maybe Action,
+        receive      = receive      :: Input -> Maybe Action,
         finalize     = finalize     :: Maybe Action
     }
-                    -- :: HalogenQ Query Action Input ~> HalogenM State Action Slots Output m
 }
 
 render :: forall m. MonadAff m => State -> Halogen.ComponentHTML Action Slots m
@@ -87,17 +90,24 @@ render ({settings: settings, password: password}) = HTML.div [] [
 -- handleAction ∷ forall m. {- MonadAff m => -} Action → Halogen.HalogenM State Action Slots Output m Unit
 handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Action Slots Output m Unit
 handleAction = case _ of
-    -- NoAction ->
-    --    pure unit
     UpdateSettings (Components.Settings.UpdatedSettings settings) ->
         Halogen.modify_ (\state -> state { settings = settings })
---  UpdatePassword (Components.Password.UpdatedPassword password) ->
---      pure unit
     UpdatePassword (Components.Password.RegeneratePassword) -> do
         Halogen.liftEffect $ log "handleAction \"UpdatePassword\""
-        settings :: Settings <- Halogen.gets _.settings
---      password :: String <- generatePassword settings
-        Halogen.modify_ (\state -> state { password = "drowssap" })
+        generatePasswordAction
+    GeneratePassword -> do
+        Halogen.liftEffect $ log "handleAction \"GeneratePassword\""
+        generatePasswordAction
+
+generatePasswordAction :: ∀ m. Bind m ⇒ MonadEffect m ⇒ MonadState State m ⇒ m Unit
+generatePasswordAction = do
+    settings :: Settings <- Halogen.gets _.settings
+    password :: String <- pure (generatePassword settings)
+--  Halogen.modify_ (\state -> state { password = "drowssap" })
+--  password :: String <- Halogen.gets _.password
+    Halogen.liftEffect $ log ("new password: " <> password)
+  
+
 
 handleQuery :: forall m a. Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a)
 handleQuery = const (pure Nothing)
@@ -109,11 +119,11 @@ receive :: Input -> Maybe Action
 receive = const Nothing
 
 initialize :: Maybe Action
-initialize = Nothing -- Just NoAction
+--initialize = Nothing
+initialize = Just GeneratePassword
 
 finalize :: Maybe Action
 finalize = Nothing
-
 
 -- ============================================================================
 
