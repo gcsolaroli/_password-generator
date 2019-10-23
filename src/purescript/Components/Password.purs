@@ -56,7 +56,7 @@ render (password) = HTML.div [HTML.Properties.class_ (Halogen.ClassName "passwor
 handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Action Slots Output m Unit
 handleAction = case _ of
     Click -> do
-        Halogen.liftEffect $ log "click \"new\""
+        Halogen.liftEffect $ log "Password: click \"new\""
         Halogen.raise RegeneratePassword
 
 handleQuery :: forall m a. Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a)

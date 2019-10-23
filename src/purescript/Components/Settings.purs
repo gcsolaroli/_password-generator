@@ -2,6 +2,7 @@ module Components.Settings where
 
 import Control.Applicative (pure, (<$>))
 --import Control.Bind (bind)
+import Control.Bind (discard)
 import Control.Category (identity)
 import Control.Semigroupoid ((<<<))
 --import Data.Eq (class Eq)
@@ -13,19 +14,23 @@ import Data.Show (show)
 --import Data.Symbol (SProxy(..))
 import Data.Unit (Unit, unit)
 import Effect.Aff.Class (class MonadAff)
+import Effect.Console (log)
 import Halogen as Halogen
 import Halogen.HTML as HTML
+import Halogen.HTML.Events as HTML.Events
 import Halogen.HTML.Properties as HTML.Properties
 
-type    Surface    = HTML.HTML
-data    Action     = NoAction
-data    Query a    = GetSettings (Settings -> a)
-type    Input      = Settings
-data    Output     = UpdatedSettings Settings
+type    Surface     = HTML.HTML
+data    Action      = NoAction
+                    | Click
+data    Query a     = GetSettings (Settings -> a)
+type    Input       = Settings
+data    Output      = UpdatedSettings Settings
+                    | RegeneratePassword
 --type    Output     = Settings
-type    State      = Settings
-type    Slot = Halogen.Slot Query Output
-type    Slots = ()
+type    State       = Settings
+type    Slot        = Halogen.Slot Query Output
+type    Slots       = ()
 
 type    Settings = { length :: Int }
 
@@ -48,13 +53,18 @@ component = Halogen.mkComponent {
 
 render :: forall m. {-MonadAff m =>-} State -> Halogen.ComponentHTML Action Slots m
 render ({length:length}) = HTML.div [HTML.Properties.class_ (Halogen.ClassName "settings")] [
-    HTML.h1  [] [HTML.text (show length)]
+    HTML.h1  [] [HTML.text (show length)],
+    HTML.button [HTML.Properties.title "new", HTML.Events.onClick \_ -> Just Click] [HTML.text "new"]
 ]
 
 handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Action Slots Output m Unit
 handleAction = case _ of
     NoAction ->
         pure unit
+    Click -> do
+        Halogen.liftEffect $ log "Settings: click \"new\""
+        Halogen.raise RegeneratePassword
+    
 --  SubComponentOutput (SubComponent.S_NoOutput) ->
 --      pure unit
 --  SubComponentOutput (SubComponent.S_Click_Happened) ->

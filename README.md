@@ -4,13 +4,14 @@
 
 Compiling the [`purescript`](http://www.purescript.org) code, supposing [`nvm`](http://nvm.sh) is already installed, is as simple as typing:
 
-    > nvm install --lts (10.16.3)
-    > npm install -g purescript@0.13.3
+    > nvm install --lts (12.13.0)
+    > npm install -g purescript@0.13.4
     > npm install -g spago@0.10.0
-    > npm install -g parcel-bundler@1.12.3
-    > npm install -g sass@1.22.12
-    > npm install -g yarn@1.17.3
-    > yarn build
+    > npm install -g parcel-bundler@1.12.4
+    > npm install -g sass@1.2
+    > npm install -g yarn@1.19.1
+    > yarn clean; yarn build
+    > yarn develop-app
 
 
 ## VSCode integration

@@ -22,6 +22,8 @@ import Effect.Class (class MonadEffect)
 import Effect.Console (log)
 import Halogen as Halogen
 import Halogen.HTML as HTML
+import Halogen.HTML.Events as HTML.Events
+import Halogen.HTML.Properties as HTML.Properties
 
 -- import Halogen.Query.EventSource (finalize)
 
@@ -40,6 +42,7 @@ type    Surface     = HTML.HTML
 data    Action      = UpdateSettings        Components.Settings.Output
                     | UpdatePassword        Components.Password.Output
                     | GeneratePassword
+                    | Click
 data    Query a     = NoQuery a
 type    Input       = Settings
 data    Output      = NoOutput      -- aka Message
@@ -61,7 +64,7 @@ _password :: SProxy "password"
 _password = SProxy
 
 initialState :: Input -> State
-initialState s = { settings: s, password: "aaa" }
+initialState s = { settings: s, password: "" }
 
 -- component :: forall m. {- MonadAff m => -} Halogen.Component Surface Query Input Output m
 component :: forall m. MonadAff m => Halogen.Component Surface Query Input Output m
@@ -80,6 +83,7 @@ component = Halogen.mkComponent {
 render :: forall m. MonadAff m => State -> Halogen.ComponentHTML Action Slots m
 render ({settings: settings, password: password}) = HTML.div [] [
     HTML.h1  [] [HTML.text "Hello!"],
+    HTML.button [HTML.Properties.title "new", HTML.Events.onClick \_ -> Just Click] [HTML.text "new"],
     HTML.div [] [HTML.slot _settings unit Components.Settings.component (settings) (Just <<< UpdateSettings)],
     HTML.div [] [HTML.slot _password unit Components.Password.component (password) (Just <<< UpdatePassword)],
     --HTML.div [] [HTML.span [] [HTML.text "length:"],   HTML.span [] [HTML.text (show length)]],
@@ -92,18 +96,24 @@ handleAction ∷ forall m. MonadAff m => Action → Halogen.HalogenM State Actio
 handleAction = case _ of
     UpdateSettings (Components.Settings.UpdatedSettings settings) ->
         Halogen.modify_ (\state -> state { settings = settings })
+    UpdateSettings (Components.Settings.RegeneratePassword) -> do
+        Halogen.liftEffect $ log "handleAction \"UpdatePassword\" (Settings)"
+        generatePasswordAction
     UpdatePassword (Components.Password.RegeneratePassword) -> do
-        Halogen.liftEffect $ log "handleAction \"UpdatePassword\""
+        Halogen.liftEffect $ log "handleAction \"UpdatePassword\" (Password)"
         generatePasswordAction
     GeneratePassword -> do
         Halogen.liftEffect $ log "handleAction \"GeneratePassword\""
+        generatePasswordAction
+    Click -> do
+        Halogen.liftEffect $ log "handleAction \"UpdatePassword\" (Main)"
         generatePasswordAction
 
 generatePasswordAction :: ∀ m. Bind m ⇒ MonadEffect m ⇒ MonadState State m ⇒ m Unit
 generatePasswordAction = do
     settings :: Settings <- Halogen.gets _.settings
     password :: String <- pure (generatePassword settings)
---  Halogen.modify_ (\state -> state { password = "drowssap" })
+    Halogen.modify_ (\state -> state { password = "drowssap" })
 --  password :: String <- Halogen.gets _.password
     Halogen.liftEffect $ log ("new password: " <> password)
   
@@ -119,8 +129,8 @@ receive :: Input -> Maybe Action
 receive = const Nothing
 
 initialize :: Maybe Action
---initialize = Nothing
-initialize = Just GeneratePassword
+initialize = Nothing
+--initialize = Just GeneratePassword
 
 finalize :: Maybe Action
 finalize = Nothing
@@ -128,4 +138,4 @@ finalize = Nothing
 -- ============================================================================
 
 generatePassword :: Settings -> String
-generatePassword { length: length } = "pppp" -- maybe "" identity (repeat length "*")
+generatePassword { length: length } = "poppp" -- maybe "" identity (repeat length "*")
