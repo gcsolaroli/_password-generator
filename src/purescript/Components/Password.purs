@@ -3,7 +3,7 @@ module Components.Password where
 import Control.Applicative (pure)
 import Control.Bind (discard)
 import Control.Category (identity)
--- import Control.Semigroupoid ((<<<))
+import Control.Semigroupoid ((<<<))
 -- import Data.Eq (class Eq)
 import Data.Function (($), const)
 import Data.Maybe (Maybe(..))
@@ -22,6 +22,7 @@ import Halogen.HTML.Properties as HTML.Properties
 
 type    Surface     = HTML.HTML
 data    Action      = Click
+                    | HandleInput String
 data    Query a     = GetSettings a
 type    Input       = String
 data    Output      = RegeneratePassword
@@ -58,12 +59,16 @@ handleAction = case _ of
     Click -> do
         Halogen.liftEffect $ log "Password: click \"new\""
         Halogen.raise RegeneratePassword
+    HandleInput password -> do
+        Halogen.put password
+
 
 handleQuery :: forall m a. Query a -> Halogen.HalogenM State Action Slots Output m (Maybe a)
 handleQuery = const (pure Nothing)
 
 receive :: Input -> Maybe Action
-receive = const Nothing
+--receive = const Nothing
+receive = Just <<< HandleInput
 
 initialize :: Maybe Action
 initialize = Nothing    --  DO NOT generate a password when starting up
